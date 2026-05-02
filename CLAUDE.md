@@ -13,7 +13,7 @@
 ## 三個家
 
 - GDrive：`G:\我的雲端硬碟\claude code\舞樂天MV製作\`
-- GitHub：`sanshinechu/-MV-`
+- GitHub：`sanshinechu/115-Dancing-and-Music-MV`
 - Obsidian：`G:\我的雲端硬碟\工作筆記本\專案紀錄\舞樂天MV製作\工作筆記.md`
 
 ## 注意事項

@@ -270,6 +270,7 @@ const checklistItems = [
 let activeIndex = 0;
 let currentUser = null;
 let unsubscribeProjects = null;
+const stepOutputs = {};
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -301,6 +302,9 @@ els.projectNoteInput = document.getElementById("projectNoteInput");
 els.firebaseStatus = document.getElementById("firebaseStatus");
 els.saveProject = document.getElementById("saveProject");
 els.savedProjects = document.getElementById("savedProjects");
+els.outputInput = document.getElementById("outputInput");
+els.outputHint = document.getElementById("outputHint");
+els.copyOutput = document.getElementById("copyOutput");
 
 function listItems(target, items) {
   target.innerHTML = "";
@@ -319,6 +323,7 @@ function renderNav() {
     button.type = "button";
     button.innerHTML = `<strong>${step.id}</strong><span>${step.title}</span>`;
     button.addEventListener("click", () => {
+      stepOutputs[steps[activeIndex].id] = els.outputInput.value;
       activeIndex = index;
       renderStep();
     });
@@ -336,6 +341,8 @@ function renderStep() {
   listItems(els.activeInputs, step.inputs);
   listItems(els.activeTools, step.tools);
   listItems(els.activeOutputs, step.outputs);
+  els.outputHint.textContent = `產出：${step.outputs.join("、")}`;
+  els.outputInput.value = stepOutputs[step.id] || "";
   renderNav();
 }
 
@@ -363,6 +370,7 @@ function getProjectPayload() {
   return {
     name: els.projectNameInput.value.trim() || "未命名 MV 專案",
     note: els.projectNoteInput.value.trim(),
+    stepOutputs: { ...stepOutputs, [steps[activeIndex].id]: els.outputInput.value },
     activeStepId: steps[activeIndex].id,
     activeStepTitle: steps[activeIndex].title,
     topic: els.topicInput.value.trim(),
@@ -388,6 +396,9 @@ function applySavedProject(project) {
   els.sceneInput.value = project.scene || "";
   els.cameraInput.value = project.camera || "";
 
+  if (project.stepOutputs) {
+    Object.assign(stepOutputs, project.stepOutputs);
+  }
   const stepIndex = steps.findIndex((step) => step.id === project.activeStepId);
   if (stepIndex >= 0) {
     activeIndex = stepIndex;
@@ -540,6 +551,10 @@ function renderChecklist() {
 
 document.getElementById("copyStepPrompt").addEventListener("click", () => {
   copyText(steps[activeIndex].prompt);
+});
+
+els.copyOutput.addEventListener("click", () => {
+  copyText(els.outputInput.value);
 });
 
 document.getElementById("copyActivePrompt").addEventListener("click", () => {

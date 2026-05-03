@@ -270,11 +270,34 @@ input:focus {
 
 .generated-panel,
 .prompt-card,
+.output-card,
 .save-panel {
   margin-top: 18px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface-strong);
+}
+
+.output-hint {
+  margin: 0;
+  padding: 8px 14px 0;
+  font-size: 0.78rem;
+  color: var(--text-muted, #888);
+}
+
+.output-card textarea {
+  display: block;
+  width: 100%;
+  min-height: 140px;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 0 0 8px 8px;
+  background: transparent;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  resize: vertical;
+  box-sizing: border-box;
+  font-family: inherit;
 }
 
 .panel-title-row {

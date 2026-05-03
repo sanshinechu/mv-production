@@ -7,6 +7,8 @@ import {
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc as firestoreDoc,
   initializeFirestore,
   limit,
   onSnapshot,
@@ -428,6 +430,21 @@ function renderSavedProjects(snapshot) {
     loadButton.textContent = "載入";
     loadButton.addEventListener("click", () => applySavedProject(project));
     item.appendChild(loadButton);
+
+    const docId = doc.id;
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "secondary-btn danger-btn";
+    deleteButton.type = "button";
+    deleteButton.textContent = "刪除";
+    deleteButton.addEventListener("click", async () => {
+      if (!confirm(`確定要刪除「${project.name || "未命名 MV 專案"}」嗎？`)) return;
+      try {
+        await deleteDoc(firestoreDoc(db, "users", currentUser.uid, "mvProjects", docId));
+      } catch (error) {
+        els.firebaseStatus.textContent = `刪除失敗：${error.message}`;
+      }
+    });
+    item.appendChild(deleteButton);
     els.savedProjects.appendChild(item);
   });
 }

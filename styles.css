@@ -201,6 +201,10 @@ button {
   background: transparent;
 }
 
+.danger-btn {
+  color: #c0392b;
+}
+
 .workspace {
   display: grid;
   grid-template-columns: minmax(330px, 0.78fr) minmax(0, 1.22fr);

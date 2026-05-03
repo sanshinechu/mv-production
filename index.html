@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MV 製作流程指南</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="MV 製作流程導覽">
+      <div class="brand">
+        <div class="brand-mark">MV</div>
+        <div>
+          <h1>MV 製作流程</h1>
+          <p>AI 影像與影片 SOP</p>
+        </div>
+      </div>
+      <nav class="step-nav" id="stepNav"></nav>
+      <div class="sidebar-note">
+        <strong>建議流程</strong>
+        <span>先完成歌曲和主角，再進入分鏡、影片和打光。</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">115 Dancing and Music MV</p>
+          <h2>把 MV 指南變成可操作的 Prompt 工作台</h2>
+          <p class="hero-copy">
+            依照 MV_01 到 MV_10 逐步完成歌詞、角色、影像、影片、Google Flow 和電影感打光。
+            常用欄位可先填好，再直接組合成可複製的 AI 指令。
+          </p>
+        </div>
+        <div class="hero-actions">
+          <button class="primary-btn" id="copyActivePrompt" type="button">複製目前步驟指令</button>
+          <button class="secondary-btn" id="resetForm" type="button">清空表單</button>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <section class="builder" aria-labelledby="builderTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Prompt Builder</p>
+              <h3 id="builderTitle">快速填入常用設定</h3>
+            </div>
+            <span class="status-pill" id="copyStatus">尚未複製</span>
+          </div>
+
+          <div class="form-grid">
+            <label>
+              主題
+              <input id="topicInput" type="text" placeholder="例：舞樂天、校園回憶、青春熱血">
+            </label>
+            <label>
+              曲風
+              <input id="styleInput" type="text" placeholder="例：J-pop、抒情搖滾、電子流行">
+            </label>
+            <label>
+              情緒
+              <input id="moodInput" type="text" placeholder="例：溫暖、熱血、懷念、神祕">
+            </label>
+            <label>
+              主角
+              <input id="characterInput" type="text" placeholder="例：東亞少年舞者、學生樂團主唱">
+            </label>
+            <label>
+              場景
+              <input id="sceneInput" type="text" placeholder="例：學校操場、音樂教室、夜晚街道">
+            </label>
+            <label>
+              運鏡
+              <input id="cameraInput" type="text" placeholder="例：Push In、Orbit Shot、Pull Out">
+            </label>
+          </div>
+
+          <div class="generated-panel">
+            <div class="panel-title-row">
+              <h4>組合後的常用指令</h4>
+              <button class="small-btn" id="copyGenerated" type="button">複製</button>
+            </div>
+            <pre id="generatedPrompt"></pre>
+          </div>
+
+          <div class="save-panel">
+            <div class="panel-title-row">
+              <div>
+                <h4>Firebase 專案資料庫</h4>
+                <p id="firebaseStatus">正在連線 Firebase...</p>
+              </div>
+              <button class="small-btn" id="saveProject" type="button">儲存專案</button>
+            </div>
+            <div class="save-fields">
+              <label>
+                專案名稱
+                <input id="projectNameInput" type="text" placeholder="例：舞樂天 MV 第一版">
+              </label>
+              <label>
+                備註
+                <input id="projectNoteInput" type="text" placeholder="例：先測 MV_01 到 MV_06">
+              </label>
+            </div>
+            <div class="saved-list" id="savedProjects"></div>
+          </div>
+        </section>
+
+        <section class="content-panel" aria-live="polite">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow" id="activeMeta">MV_01</p>
+              <h3 id="activeTitle">構思歌詞和曲風</h3>
+            </div>
+            <span class="step-count" id="activeCount">1 / 10</span>
+          </div>
+
+          <div class="detail-grid">
+            <article>
+              <h4>目的</h4>
+              <p id="activePurpose"></p>
+            </article>
+            <article>
+              <h4>需要輸入</h4>
+              <ul id="activeInputs"></ul>
+            </article>
+            <article>
+              <h4>使用工具</h4>
+              <ul id="activeTools"></ul>
+            </article>
+            <article>
+              <h4>產出結果</h4>
+              <ul id="activeOutputs"></ul>
+            </article>
+          </div>
+
+          <div class="prompt-card">
+            <div class="panel-title-row">
+              <h4>可直接複製的 AI 指令</h4>
+              <button class="small-btn" id="copyStepPrompt" type="button">複製</button>
+            </div>
+            <pre id="activePrompt"></pre>
+          </div>
+        </section>
+      </section>
+
+      <section class="reference-grid">
+        <article class="reference-panel">
+          <h3>檔案命名建議</h3>
+          <ul>
+            <li>01_歌詞與曲風.md</li>
+            <li>02_主角設計_prompt.md</li>
+            <li>03_主角參考圖.png</li>
+            <li>04_九宮格分鏡.png</li>
+            <li>06_影片提示詞_01.md</li>
+            <li>10_Flow_成品片段_01.mp4</li>
+          </ul>
+        </article>
+
+        <article class="reference-panel">
+          <h3>生成前檢查清單</h3>
+          <div class="checklist" id="checklist"></div>
+        </article>
+
+        <article class="reference-panel wide">
+          <h3>常見修正方向</h3>
+          <div class="tips">
+            <p><strong>角色長相一直變：</strong>固定髮型、服裝、臉型、氣質與主要配色，並沿用同一張主角參考圖。</p>
+            <p><strong>影片畫面亂跳：</strong>一次只描述一個主要動作和一個主要運鏡。</p>
+            <p><strong>畫面不夠電影感：</strong>加入鏡頭、景深、打光和色彩，例如 50mm f/1.8、shallow depth of field、Rembrandt lighting。</p>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>

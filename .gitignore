@@ -17,6 +17,10 @@ credentials.*
 node_modules/
 package-lock.json
 
+# Firebase
+firebase-debug.log
+.firebase/
+
 # 系統檔
 .DS_Store
 Thumbs.db

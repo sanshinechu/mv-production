@@ -161,11 +161,38 @@ function renderNav() {
 
 function renderStep() {
   const step = steps[activeIndex];
+  
   if (els.activeMeta) els.activeMeta.textContent = `${step.id} - 進度 ${activeIndex + 1}/${steps.length}`;
   if (els.activeTitle) els.activeTitle.textContent = step.title;
   if (els.activeCount) els.activeCount.textContent = `${activeIndex + 1} / ${steps.length}`;
   if (els.activePurpose) els.activePurpose.textContent = step.purpose;
+  
+  // Update time and cost
+  const stepTime = document.getElementById("stepTime");
+  const stepCost = document.getElementById("stepCost");
+  if (stepTime) stepTime.textContent = step.time;
+  if (stepCost) stepCost.textContent = step.cost;
+  
+  // Update tools list
+  const stepTools = document.getElementById("stepTools");
+  if (stepTools) {
+    stepTools.innerHTML = step.tools.map(tool => `<li>${tool}</li>`).join('');
+  }
+  
+  // Update inputs list
+  const stepInputs = document.getElementById("stepInputs");
+  if (stepInputs) {
+    stepInputs.innerHTML = step.inputs.map(input => `<li>${input}</li>`).join('');
+  }
+  
+  // Update outputs list
+  const stepOutputs = document.getElementById("stepOutputs");
+  if (stepOutputs) {
+    stepOutputs.innerHTML = step.outputs.map(output => `<li>${output}</li>`).join('');
+  }
+  
   renderNav();
+  console.log("Step changed to:", step.id);
 }
 
 function buildPrompt() {
@@ -192,7 +219,7 @@ ${lyrics}
 function copyPrompt(text) {
   navigator.clipboard.writeText(text).then(() => {
     if (els.copyStatus) {
-      els.copyStatus.textContent = "✓ 已複製";
+      els.copyStatus.textContent = "已複製";
       setTimeout(() => { els.copyStatus.textContent = "尚未複製"; }, 2000);
     }
   });
@@ -228,43 +255,3 @@ document.addEventListener("DOMContentLoaded", () => {
     if (input) input.addEventListener("input", buildPrompt);
   });
 });
-
-// Update renderStep to also populate step details
-const originalRenderStep = renderStep;
-renderStep = function() {
-  originalRenderStep.call(this);
-  
-  const step = steps[activeIndex];
-  
-  // Update step details
-  if (els.activeMeta) els.activeMeta.textContent = `${step.id} - 進度 ${activeIndex + 1}/${steps.length}`;
-  if (els.activeTitle) els.activeTitle.textContent = step.title;
-  if (els.activeCount) els.activeCount.textContent = `${activeIndex + 1} / ${steps.length}`;
-  if (els.activePurpose) els.activePurpose.textContent = step.purpose;
-  
-  // Update time and cost
-  const stepTime = document.getElementById("stepTime");
-  const stepCost = document.getElementById("stepCost");
-  if (stepTime) stepTime.textContent = step.time;
-  if (stepCost) stepCost.textContent = step.cost;
-  
-  // Update tools list
-  const stepTools = document.getElementById("stepTools");
-  if (stepTools) {
-    stepTools.innerHTML = step.tools.map(tool => `<li>${tool}</li>`).join('');
-  }
-  
-  // Update inputs list
-  const stepInputs = document.getElementById("stepInputs");
-  if (stepInputs) {
-    stepInputs.innerHTML = step.inputs.map(input => `<li>${input}</li>`).join('');
-  }
-  
-  // Update outputs list
-  const stepOutputs = document.getElementById("stepOutputs");
-  if (stepOutputs) {
-    stepOutputs.innerHTML = step.outputs.map(output => `<li>${output}</li>`).join('');
-  }
-  
-  console.log("Updated step details for:", step.id);
-};

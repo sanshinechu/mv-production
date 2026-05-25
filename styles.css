@@ -542,3 +542,83 @@ pre {
   font-size: 14px;
   resize: vertical;
 }
+
+/* Step Details Section */
+.step-details {
+  padding: 2rem;
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.step-details .section-heading {
+  margin-bottom: 1.5rem;
+}
+
+.step-purpose {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+}
+
+.step-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.info-block {
+  padding: 1rem;
+  background-color: var(--background);
+  border-radius: 6px;
+  border: 1px solid var(--line);
+}
+
+.info-block h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.info-block p {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.step-details-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.step-details-group div h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.step-details-group ul {
+  list-style: disc;
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.step-details-group li {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+@media (max-width: 768px) {
+  .step-info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .step-details-group {
+    grid-template-columns: 1fr;
+  }
+}

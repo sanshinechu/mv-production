@@ -23,7 +23,7 @@ import {
 
 const steps = [
   {
-    id: "MV_01",
+    id: "Step_01",
     title: "構思歌詞和曲風",
     purpose: "產生一首適合用 Suno 生成音樂的歌詞，並同時產出可貼到 Suno 的英文 Style 描述。",
     inputs: ["主題", "曲風", "情緒", "語言", "男聲、女聲或合唱"],
@@ -62,7 +62,7 @@ Style 撰寫規則：
 【人聲設定】：`
   },
   {
-    id: "MV_02",
+    id: "Step_02",
     title: "主角設計",
     purpose: "根據歌曲內容設計 MV 主角，產出可用於 AI 生圖工具的角色提示詞。",
     inputs: ["性別", "曲風", "歌詞", "年齡感", "個性氣質"],
@@ -90,8 +90,8 @@ Style 撰寫規則：
 【歌詞】：`
   },
   {
-    id: "MV_03",
-    title: "影像生成",
+    id: "Step_03",
+    title: "場景提示詞設計",
     purpose: "把歌曲概念、歌詞段落或參考圖片，轉換成更完整的圖片生成提示詞。",
     inputs: ["概念", "歌詞段落", "主角圖", "場景想法", "情緒氛圍"],
     tools: ["ChatGPT", "Gemini", "Midjourney", "Leonardo AI"],
@@ -110,7 +110,7 @@ Style 撰寫規則：
 【概念】：`
   },
   {
-    id: "MV_04",
+    id: "Step_04",
     title: "九宮格多角度設計圖",
     purpose: "把主角和場景延伸成 9 張不同角度的分鏡圖，建立 MV 的視覺節奏。",
     inputs: ["主角圖片", "MV 主題", "場景設定", "歌曲情緒"],
@@ -131,7 +131,7 @@ Style 撰寫規則：
 4. 戲劇角度：低角度仰拍 Low Angle、高角度俯拍 High Angle。`
   },
   {
-    id: "MV_05",
+    id: "Step_05",
     title: "截取九宮格影像並放大",
     purpose: "從九宮格中挑出最好的單張分鏡，放大成可以拿去做圖生影片的高畫質圖片。",
     inputs: ["九宮格圖片", "Row 編號", "Column 編號"],
@@ -147,7 +147,7 @@ Style 撰寫規則：
 【Column】：`
   },
   {
-    id: "MV_06",
+    id: "Step_06",
     title: "生成影片提示詞",
     purpose: "將靜態圖片或分鏡畫面轉成影片生成提示詞，讓畫面動起來。",
     inputs: ["分鏡圖片", "主題", "歌詞段落", "角色動作", "想要的運鏡"],
@@ -168,8 +168,8 @@ Style 撰寫規則：
 【指定運鏡，如果沒有請自動設計】：`
   },
   {
-    id: "MV_07",
-    title: "角色風格轉換與 Q 版變體",
+    id: "Step_07",
+    title: "空拍視角和細節",
     purpose: "將 MV 主角轉成 Q 版、插畫風、宣傳圖或社群封面。",
     inputs: ["主角圖片", "想轉換的風格", "使用情境"],
     tools: ["ChatGPT", "圖片生成工具", "圖片編輯工具"],
@@ -189,8 +189,8 @@ Style 撰寫規則：
 【想要風格】：`
   },
   {
-    id: "MV_08",
-    title: "空拍圖生成",
+    id: "Step_08",
+    title: "電影感打光優化",
     purpose: "從原本的場景圖延伸出更高、更遠、更壯闊的空拍視角。",
     inputs: ["原圖", "場景描述", "想要的空拍運鏡"],
     tools: ["Gemini", "Google Flow", "影片生成工具"],
@@ -209,8 +209,8 @@ Style 撰寫規則：
 5. FPV 概念。`
   },
   {
-    id: "MV_09",
-    title: "Google Flow 微電影製作",
+    id: "Step_09",
+    title: "FFmpeg 組裝與驗證",
     purpose: "使用 Google Flow 的首尾幀功能，製作一鏡到底、無縫轉場或短篇微電影片段。",
     inputs: ["MV 主題", "主角類別", "主角設定", "場景設定", "想要的影片長度"],
     tools: ["Google Flow", "ChatGPT", "Gemini"],
@@ -233,8 +233,8 @@ Style 撰寫規則：
 請特別注意首幀與尾幀必須保持同一位主角。`
   },
   {
-    id: "MV_10",
-    title: "電影感打光 AI 指令集",
+    id: "Step_10",
+    title: "打包與資產整理",
     purpose: "為圖片或影片加入明確打光風格，讓畫面更有電影感。",
     inputs: ["場景", "角色", "情緒", "想要的光線感"],
     tools: ["圖片生成工具", "影片生成工具", "ChatGPT", "Gemini"],
@@ -254,6 +254,47 @@ Style 撰寫規則：
   }
 ];
 
+  },
+  {
+    id: "Step_11",
+    title: "打包與資產整理",
+    purpose: "準備 YouTube 上傳所需的所有文件和元數據。",
+    inputs: ["完整 MV.mp4", "相關素材"],
+    tools: ["FFmpeg", "文本編輯器", "Firebase（可選）"],
+    outputs: ["MP4 + 封面 PNG + metadata.md"],
+    time: "5-10 分鐘",
+    cost: "$0",
+    prompt: `整理完成的 MV 及相關元數據，為 YouTube 上傳做準備。
+
+準備以下文件：
+1. MV 完整檔 (MP4)
+2. 封面圖片 (PNG, 1920×1080)
+3. Metadata 文檔
+4. 製作說明 (README.md)
+5. 製作人員清單 (CREDITS.md)
+
+【MV 標題】：
+【製作工具清單】：`
+  },
+  {
+    id: "Step_12",
+    title: "YouTube 上傳與發布",
+    purpose: "上傳到 YouTube 並配置完整的視頻信息。",
+    inputs: ["MP4 文件", "metadata", "封面圖"],
+    tools: ["YouTube Studio"],
+    outputs: ["YouTube 視頻連結"],
+    time: "15-30 分鐘",
+    cost: "$0",
+    prompt: `上傳到 YouTube 並配置完整的視頻信息。
+
+上傳前檢查清單：
+- 標題簡潔吸引
+- 描述前 100 字包含主關鍵詞
+- 章節時間碼標記
+- 標籤最多 30 個
+
+【視頻標題】：
+【主要關鍵詞】：`
 const checklistItems = [
   "主角是否一致？",
   "髮型是否一致？",

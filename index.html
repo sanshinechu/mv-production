@@ -16,6 +16,18 @@
           <p>AI 影像與影片 SOP</p>
         </div>
       </div>
+      
+      <!-- 用戶認證區域 -->
+      <div class="auth-section" id="authSection">
+        <button class="google-signin-btn" id="googleSignInBtn" type="button">
+          🔐 使用 Google 登入
+        </button>
+        <div id="userInfo" class="user-info" style="display:none;">
+          <p id="userName"></p>
+          <button class="logout-btn" id="logoutBtn" type="button">登出</button>
+        </div>
+      </div>
+
       <nav class="step-nav" id="stepNav"></nav>
       <div class="sidebar-note">
         <strong>建議流程</strong>
@@ -87,9 +99,9 @@
             <div class="panel-title-row">
               <div>
                 <h4>Firebase 專案資料庫</h4>
-                <p id="firebaseStatus">正在連線 Firebase...</p>
+                <p id="firebaseStatus">請先登入 Google</p>
               </div>
-              <button class="small-btn" id="saveProject" type="button">儲存專案</button>
+              <button class="small-btn" id="saveProject" type="button" disabled>儲存專案</button>
             </div>
             <div class="save-fields">
               <label>
@@ -98,95 +110,130 @@
               </label>
               <label>
                 備註
-                <input id="projectNoteInput" type="text" placeholder="例：先測 Step_01 到 Step_06">
+                <input id="projectNoteInput" type="text" placeholder="例：v1、初稿、修改版">
               </label>
             </div>
-            <div class="saved-list" id="savedProjects"></div>
           </div>
         </section>
-
-        <section class="content-panel" aria-live="polite">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow" id="activeMeta">Step_01</p>
-              <h3 id="activeTitle">構思歌詞和曲風</h3>
-            </div>
-            <span class="step-count" id="activeCount">1 / 10</span>
-          </div>
-
-          <div class="detail-grid">
-            <article>
-              <h4>目的</h4>
-              <p id="activePurpose"></p>
-            </article>
-            <article>
-              <h4>需要輸入</h4>
-              <ul id="activeInputs"></ul>
-            </article>
-            <article>
-              <h4>使用工具</h4>
-              <ul id="activeTools"></ul>
-            </article>
-            <article>
-              <h4>產出結果</h4>
-              <ul id="activeOutputs"></ul>
-            </article>
-          </div>
-
-          <div class="prompt-card">
-            <div class="panel-title-row">
-              <h4>可直接複製的 AI 指令</h4>
-              <button class="small-btn" id="copyStepPrompt" type="button">複製</button>
-            </div>
-            <pre id="activePrompt"></pre>
-          </div>
-
-          <div class="output-card">
-            <div class="panel-title-row">
-              <h4>產出記錄</h4>
-              <button class="small-btn" id="copyOutput" type="button">複製</button>
-            </div>
-            <p class="output-hint" id="outputHint"></p>
-            <textarea id="outputInput" placeholder="將這個步驟的 AI 產出貼在這裡，例如歌詞、角色設定、提示詞…"></textarea>
-          </div>
-        </section>
-      </section>
-
-      <section class="reference-grid">
-        <article class="reference-panel">
-          <h3>檔案命名建議</h3>
-          <ul>
-            <li>01_歌詞與曲風.md</li>
-            <li>02_主角設計_prompt.md</li>
-            <li>03_主角參考圖.png</li>
-            <li>04_九宮格分鏡.png</li>
-            <li>05_分鏡放大_01.png</li>
-            <li>06_影片提示詞_01.md</li>
-            <li>07_角色風格變體_01.png</li>
-            <li>08_空拍圖_01.png</li>
-            <li>09_Flow_首尾幀提示詞_01.md</li>
-            <li>10_電影感打光指令_01.md</li>
-            <li>output_Flow_成品片段_01.mp4</li>
-          </ul>
-        </article>
-
-        <article class="reference-panel">
-          <h3>生成前檢查清單</h3>
-          <div class="checklist" id="checklist"></div>
-        </article>
-
-        <article class="reference-panel wide">
-          <h3>常見修正方向</h3>
-          <div class="tips">
-            <p><strong>角色長相一直變：</strong>固定髮型、服裝、臉型、氣質與主要配色，並沿用同一張主角參考圖。</p>
-            <p><strong>影片畫面亂跳：</strong>一次只描述一個主要動作和一個主要運鏡。</p>
-            <p><strong>畫面不夠電影感：</strong>加入鏡頭、景深、打光和色彩，例如 50mm f/1.8、shallow depth of field、Rembrandt lighting。</p>
-          </div>
-        </article>
       </section>
     </main>
   </div>
 
-  <script type="module" src="script.js"></script>
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+    import { firebaseConfig } from "./firebase-config.js";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+    const googleProvider = new GoogleAuthProvider();
+
+    let currentUser = null;
+
+    // 監聽認證狀態
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      updateAuthUI();
+      updateSaveButton();
+    });
+
+    // 更新認證 UI
+    function updateAuthUI() {
+      const authSection = document.getElementById("authSection");
+      const signInBtn = document.getElementById("googleSignInBtn");
+      const userInfo = document.getElementById("userInfo");
+      const userName = document.getElementById("userName");
+      const logoutBtn = document.getElementById("logoutBtn");
+
+      if (currentUser) {
+        signInBtn.style.display = "none";
+        userInfo.style.display = "block";
+        userName.textContent = `已登入: ${currentUser.displayName || currentUser.email}`;
+        document.getElementById("firebaseStatus").textContent = "已登入，可保存專案";
+      } else {
+        signInBtn.style.display = "block";
+        userInfo.style.display = "none";
+        document.getElementById("firebaseStatus").textContent = "請先登入 Google";
+      }
+    }
+
+    // Google 登入
+    document.getElementById("googleSignInBtn").addEventListener("click", async () => {
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        currentUser = result.user;
+      } catch (error) {
+        alert("登入失敗: " + error.message);
+      }
+    });
+
+    // 登出
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        currentUser = null;
+        updateAuthUI();
+      } catch (error) {
+        alert("登出失敗: " + error.message);
+      }
+    });
+
+    // 更新保存按鈕狀態
+    function updateSaveButton() {
+      const saveBtn = document.getElementById("saveProject");
+      if (currentUser) {
+        saveBtn.disabled = false;
+      } else {
+        saveBtn.disabled = true;
+      }
+    }
+
+    // 保存專案
+    document.getElementById("saveProject").addEventListener("click", async () => {
+      if (!currentUser) {
+        alert("請先登入");
+        return;
+      }
+
+      const projectName = document.getElementById("projectNameInput").value;
+      const projectNote = document.getElementById("projectNoteInput").value;
+      const topic = document.getElementById("topicInput").value;
+      const style = document.getElementById("styleInput").value;
+      const mood = document.getElementById("moodInput").value;
+      const character = document.getElementById("characterInput").value;
+      const scene = document.getElementById("sceneInput").value;
+      const camera = document.getElementById("cameraInput").value;
+
+      if (!projectName) {
+        alert("請輸入專案名稱");
+        return;
+      }
+
+      try {
+        const userProjectsRef = ref(database, `users/${currentUser.uid}/mvProjects`);
+        await push(userProjectsRef, {
+          projectName,
+          projectNote,
+          topic,
+          style,
+          mood,
+          character,
+          scene,
+          camera,
+          createdAt: new Date().toISOString()
+        });
+        alert("專案已保存！");
+        document.getElementById("projectNameInput").value = "";
+        document.getElementById("projectNoteInput").value = "";
+      } catch (error) {
+        alert("保存失敗: " + error.message);
+      }
+    });
+  </script>
+
+  <script src="script.js"></script>
 </body>
 </html>

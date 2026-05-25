@@ -470,3 +470,68 @@ pre {
     grid-template-columns: 1fr;
   }
 }
+
+/* Google Sign-In Styles */
+.auth-section {
+  padding: 1rem;
+  border-top: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 1rem;
+}
+
+.google-signin-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #4285f4 0%, #1967d2 100%);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.google-signin-btn:hover {
+  box-shadow: 0 2px 8px rgba(66, 133, 244, 0.4);
+  transform: translateY(-2px);
+}
+
+.user-info {
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.user-info p {
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 0.5rem;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.logout-btn:hover {
+  background: #eeeeee;
+}
+
+#saveProject:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#saveProject:not(:disabled) {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+}
+
+#saveProject:not(:disabled):hover {
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
+}

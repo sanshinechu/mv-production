@@ -130,6 +130,7 @@ const els = {
   activeTitle: document.getElementById("activeTitle"),
   activeCount: document.getElementById("activeCount"),
   activePurpose: document.getElementById("activePurpose"),
+  lyricsInput: document.getElementById("lyricsInput"),
   topicInput: document.getElementById("topicInput"),
   styleInput: document.getElementById("styleInput"),
   moodInput: document.getElementById("moodInput"),
@@ -168,6 +169,7 @@ function renderStep() {
 }
 
 function buildPrompt() {
+  const lyrics = els.lyricsInput.value.trim() || "";
   const topic = els.topicInput.value.trim() || "";
   const style = els.styleInput.value.trim() || "";
   const mood = els.moodInput.value.trim() || "";
@@ -175,7 +177,15 @@ function buildPrompt() {
   const scene = els.sceneInput.value.trim() || "";
   const camera = els.cameraInput.value.trim() || "";
 
-  const commonPrompt = `主題：${topic}\n曲風：${style}\n情緒：${mood}\n主角：${character}\n場景：${scene}\n運鏡：${camera}`;
+  const commonPrompt = `歌詞：
+${lyrics}
+
+主題：${topic}
+曲風：${style}
+情緒：${mood}
+主角：${character}
+場景：${scene}
+運鏡：${camera}`;
   if (els.generatedPrompt) els.generatedPrompt.textContent = commonPrompt;
 }
 

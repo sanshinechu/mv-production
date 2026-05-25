@@ -532,3 +532,13 @@ pre {
 #saveProject:not(:disabled):hover {
   box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
 }
+
+#lyricsInput {
+  min-height: 140px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+}

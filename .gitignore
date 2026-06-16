@@ -1,26 +1,74 @@
-# Google Drive 系統檔
-desktop.ini
-*.tmp
-~$*
-
-# 敏感資料
-.env
-*.key
-credentials.*
-*.pem
-*.p12
-
-# Claude Code 本地設定（含 permissions、可能記錄 token，絕不上雲）
-.claude/
-
-# Node.js
+# === 相依套件 / 虛擬環境 ===
 node_modules/
 package-lock.json
+.venv/
+venv/
+.venv-whisper/
+.whisper-models/
 
-# Firebase
+# === Python ===
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.cache/
+
+# === 建置輸出 ===
+dist/
+build/
+
+# === Firebase ===
 firebase-debug.log
 .firebase/
 
-# 系統檔
+# === 敏感資料（絕不上雲）===
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.p12
+credentials.*
+
+# === Claude Code 本地設定（含 permissions / token）===
+.claude/
+
+# === 大型產出（影音圖）===
+outputs/**/*.mp4
+outputs/**/*.png
+outputs/**/*.jpg
+
+# === 壓縮檔 ===
+*.zip
+*.tar.gz
+*.rar
+
+# === 日誌 ===
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# === 暫存檔 ===
+*.tmp
+*.temp
+tmp/
+~$*
+
+# === IDE ===
+.vs/
+.vscode/
+*.swp
+*.swo
+*~
+
+# === OS / 系統檔 ===
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# YouTube/Google OAuth 憑證（勿入庫）
+yt-auto-publisher/credentials/
+**/credentials/*.json
+token.json
+client_secret*.json

@@ -134,9 +134,6 @@ const els = {
   topicInput: document.getElementById("topicInput"),
   styleInput: document.getElementById("styleInput"),
   moodInput: document.getElementById("moodInput"),
-  characterInput: document.getElementById("characterInput"),
-  sceneInput: document.getElementById("sceneInput"),
-  cameraInput: document.getElementById("cameraInput"),
   generatedPrompt: document.getElementById("generatedPrompt"),
   copyActivePrompt: document.getElementById("copyActivePrompt"),
   resetForm: document.getElementById("resetForm"),
@@ -233,7 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (els.resetForm) {
     els.resetForm.addEventListener("click", () => {
-      [els.topicInput, els.styleInput, els.moodInput, els.characterInput, els.sceneInput, els.cameraInput].forEach(input => {
+      [els.topicInput, els.styleInput, els.moodInput].forEach(input => {
         if (input) input.value = "";
       });
       buildPrompt();
@@ -246,7 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  [els.topicInput, els.styleInput, els.moodInput, els.characterInput, els.sceneInput, els.cameraInput].forEach(input => {
+  [els.topicInput, els.styleInput, els.moodInput].forEach(input => {
     if (input) input.addEventListener("input", buildPrompt);
   });
 });

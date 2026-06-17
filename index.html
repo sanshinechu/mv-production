@@ -28,6 +28,16 @@
         </div>
       </div>
 
+      <!-- 專案選單（登入後顯示）-->
+      <div class="project-section" id="projectSection" style="display:none;">
+        <label for="projectSelect">目前專案</label>
+        <select id="projectSelect"></select>
+        <div class="project-actions">
+          <button class="ghost-btn" id="newProjectBtn" type="button">＋ 新增專案</button>
+          <button class="ghost-btn danger" id="deleteProjectBtn" type="button">刪除</button>
+        </div>
+      </div>
+
       <nav class="step-nav" id="stepNav"></nav>
       <div class="sidebar-note">
         <strong>建議流程</strong>
@@ -85,46 +95,6 @@
           </div>
           <div>
             <h4>📤 輸出物</h4>
-            <ul id="stepOutputs"></ul>
-          </div>
-        </div>
-      </section>
-
-      <section class="step-details" id="stepDetailsSection">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow" id="activeMeta">Step_01 - 進度 1/12</p>
-            <h3 id="activeTitle">歌詞創作與曲風風格</h3>
-          </div>
-          <span class="status-pill" id="activeCount">1 / 12</span>
-        </div>
-
-        <p id="activePurpose" class="step-purpose">
-          創作適合用 SUNO 生成音樂的歌詞，並編寫英文風格描述。
-        </p>
-
-        <div class="step-info-grid">
-          <div class="info-block">
-            <h4>予期時間</h4>
-            <p id="stepTime">30-45 分鐘</p>
-          </div>
-          <div class="info-block">
-            <h4>成本</h4>
-            <p id="stepCost">$0</p>
-          </div>
-        </div>
-
-        <div class="step-details-group">
-          <div>
-            <h4>推薦工具</h4>
-            <ul id="stepTools"></ul>
-          </div>
-          <div>
-            <h4>輸入物</h4>
-            <ul id="stepInputs"></ul>
-          </div>
-          <div>
-            <h4>輸出物</h4>
             <ul id="stepOutputs"></ul>
           </div>
         </div>
@@ -207,7 +177,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+    import { getDatabase, ref, push, set, get, remove } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
     import { firebaseConfig } from "./firebase-config.js";
 
     const app = initializeApp(firebaseConfig);
@@ -216,36 +186,147 @@
     const googleProvider = new GoogleAuthProvider();
 
     let currentUser = null;
+    let currentProjectId = null; // 目前作用中的專案 key（null = 尚未儲存的新專案）
+    let projectsCache = {};      // { id: 專案資料 }
+
+    // 表單欄位 → 輸入框 id
+    const INPUT_IDS = {
+      projectName: "projectNameInput",
+      projectNote: "projectNoteInput",
+      lyrics: "lyricsInput",
+      topic: "topicInput",
+      style: "styleInput",
+      mood: "moodInput",
+      character: "characterInput",
+      scene: "sceneInput",
+      camera: "cameraInput",
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function setStatus(msg) {
+      const el = $("firebaseStatus");
+      if (el) el.textContent = msg;
+    }
+
+    function readForm() {
+      const data = {};
+      for (const [field, id] of Object.entries(INPUT_IDS)) {
+        data[field] = $(id)?.value ?? "";
+      }
+      return data;
+    }
+
+    function writeForm(data) {
+      for (const [field, id] of Object.entries(INPUT_IDS)) {
+        const el = $(id);
+        if (el) el.value = data?.[field] ?? "";
+      }
+      // 觸發 script.js 重新組合「常用指令」
+      $("topicInput")?.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    // 依更新時間排序（新到舊）
+    function sortedProjectIds() {
+      return Object.keys(projectsCache).sort((a, b) => {
+        const ta = projectsCache[a].updatedAt || projectsCache[a].createdAt || "";
+        const tb = projectsCache[b].updatedAt || projectsCache[b].createdAt || "";
+        return tb.localeCompare(ta);
+      });
+    }
+
+    function renderProjectSelect() {
+      const sel = $("projectSelect");
+      if (!sel) return;
+      const ids = sortedProjectIds();
+      sel.innerHTML = "";
+
+      if (!ids.length) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "（尚無專案，請新增）";
+        sel.appendChild(opt);
+        sel.disabled = true;
+        return;
+      }
+
+      sel.disabled = false;
+      for (const id of ids) {
+        const p = projectsCache[id];
+        const opt = document.createElement("option");
+        opt.value = id;
+        const note = p.projectNote ? `（${p.projectNote}）` : "";
+        opt.textContent = `${p.projectName || "未命名"}${note}`;
+        sel.appendChild(opt);
+      }
+      if (currentProjectId) sel.value = currentProjectId;
+    }
+
+    function selectProject(id) {
+      currentProjectId = id;
+      const p = projectsCache[id] || {};
+      writeForm(p);
+      const sel = $("projectSelect");
+      if (sel) sel.value = id;
+      setStatus(`已載入「${p.projectName || "未命名"}」`);
+    }
+
+    async function loadProjects() {
+      try {
+        const snap = await get(ref(database, `users/${currentUser.uid}/mvProjects`));
+        projectsCache = snap.exists() ? snap.val() : {};
+        renderProjectSelect();
+        const ids = sortedProjectIds();
+        if (ids.length) {
+          selectProject(ids[0]); // 自動開啟最近更新的專案
+        } else {
+          currentProjectId = null;
+          writeForm({});
+          setStatus("尚無專案，填寫後按「儲存專案」即可建立");
+        }
+      } catch (error) {
+        console.error("載入專案失敗：", error);
+        setStatus("載入專案失敗：" + error.message);
+      }
+    }
 
     // 監聽認證狀態
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       currentUser = user;
       updateAuthUI();
       updateSaveButton();
+      if (user) {
+        await loadProjects();
+      } else {
+        currentProjectId = null;
+        projectsCache = {};
+        renderProjectSelect();
+      }
     });
 
     // 更新認證 UI
     function updateAuthUI() {
-      const authSection = document.getElementById("authSection");
-      const signInBtn = document.getElementById("googleSignInBtn");
-      const userInfo = document.getElementById("userInfo");
-      const userName = document.getElementById("userName");
-      const logoutBtn = document.getElementById("logoutBtn");
+      const signInBtn = $("googleSignInBtn");
+      const userInfo = $("userInfo");
+      const userName = $("userName");
+      const projectSection = $("projectSection");
 
       if (currentUser) {
         signInBtn.style.display = "none";
         userInfo.style.display = "block";
         userName.textContent = `已登入: ${currentUser.displayName || currentUser.email}`;
-        document.getElementById("firebaseStatus").textContent = "已登入，可保存專案";
+        if (projectSection) projectSection.style.display = "block";
+        setStatus("已登入，可儲存專案");
       } else {
         signInBtn.style.display = "block";
         userInfo.style.display = "none";
-        document.getElementById("firebaseStatus").textContent = "請先登入 Google";
+        if (projectSection) projectSection.style.display = "none";
+        setStatus("請先登入 Google");
       }
     }
 
     // Google 登入
-    document.getElementById("googleSignInBtn").addEventListener("click", async () => {
+    $("googleSignInBtn").addEventListener("click", async () => {
       try {
         const result = await signInWithPopup(auth, googleProvider);
         currentUser = result.user;
@@ -255,7 +336,7 @@
     });
 
     // 登出
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
+    $("logoutBtn").addEventListener("click", async () => {
       try {
         await signOut(auth);
         currentUser = null;
@@ -265,55 +346,80 @@
       }
     });
 
-    // 更新保存按鈕狀態
+    // 更新儲存按鈕狀態
     function updateSaveButton() {
-      const saveBtn = document.getElementById("saveProject");
-      if (currentUser) {
-        saveBtn.disabled = false;
-      } else {
-        saveBtn.disabled = true;
-      }
+      $("saveProject").disabled = !currentUser;
     }
 
-    // 保存專案
-    document.getElementById("saveProject").addEventListener("click", async () => {
+    // 切換專案
+    $("projectSelect").addEventListener("change", (e) => {
+      const id = e.target.value;
+      if (id) selectProject(id);
+    });
+
+    // 新增專案（清空表單）
+    $("newProjectBtn").addEventListener("click", () => {
+      currentProjectId = null;
+      writeForm({});
+      const sel = $("projectSelect");
+      if (sel) sel.value = "";
+      $("projectNameInput")?.focus();
+      setStatus("已開新專案，填寫後按「儲存專案」");
+    });
+
+    // 刪除目前專案
+    $("deleteProjectBtn").addEventListener("click", async () => {
+      if (!currentUser || !currentProjectId) {
+        alert("目前沒有選定要刪除的專案");
+        return;
+      }
+      const p = projectsCache[currentProjectId];
+      if (!confirm(`確定刪除「${p?.projectName || "此專案"}」？此動作無法復原。`)) return;
+      try {
+        await remove(ref(database, `users/${currentUser.uid}/mvProjects/${currentProjectId}`));
+        delete projectsCache[currentProjectId];
+        currentProjectId = null;
+        renderProjectSelect();
+        const ids = sortedProjectIds();
+        if (ids.length) selectProject(ids[0]);
+        else writeForm({});
+        setStatus("已刪除專案");
+      } catch (error) {
+        alert("刪除失敗: " + error.message);
+      }
+    });
+
+    // 儲存專案（有選定 → 更新；新專案 → 建立）
+    $("saveProject").addEventListener("click", async () => {
       if (!currentUser) {
         alert("請先登入");
         return;
       }
-
-      const projectName = document.getElementById("projectNameInput").value;
-      const projectNote = document.getElementById("projectNoteInput").value;
-      const topic = document.getElementById("topicInput").value;
-      const style = document.getElementById("styleInput").value;
-      const mood = document.getElementById("moodInput").value;
-      const character = document.getElementById("characterInput").value;
-      const scene = document.getElementById("sceneInput").value;
-      const camera = document.getElementById("cameraInput").value;
-
-      if (!projectName) {
+      const form = readForm();
+      if (!form.projectName) {
         alert("請輸入專案名稱");
         return;
       }
 
       try {
-        const userProjectsRef = ref(database, `users/${currentUser.uid}/mvProjects`);
-        await push(userProjectsRef, {
-          projectName,
-          projectNote,
-          topic,
-          style,
-          mood,
-          character,
-          scene,
-          camera,
-          createdAt: new Date().toISOString()
-        });
-        alert("專案已保存！");
-        document.getElementById("projectNameInput").value = "";
-        document.getElementById("projectNoteInput").value = "";
+        const now = new Date().toISOString();
+        if (currentProjectId) {
+          const existing = projectsCache[currentProjectId] || {};
+          const payload = { ...form, createdAt: existing.createdAt || now, updatedAt: now };
+          await set(ref(database, `users/${currentUser.uid}/mvProjects/${currentProjectId}`), payload);
+          projectsCache[currentProjectId] = payload;
+          setStatus(`已更新「${form.projectName}」`);
+        } else {
+          const payload = { ...form, createdAt: now, updatedAt: now };
+          const newRef = await push(ref(database, `users/${currentUser.uid}/mvProjects`), payload);
+          currentProjectId = newRef.key;
+          projectsCache[currentProjectId] = payload;
+          setStatus(`已建立「${form.projectName}」`);
+        }
+        renderProjectSelect();
+        $("projectSelect").value = currentProjectId;
       } catch (error) {
-        alert("保存失敗: " + error.message);
+        alert("儲存失敗: " + error.message);
       }
     });
   </script>

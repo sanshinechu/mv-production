@@ -1,6 +1,7 @@
 export const firebaseConfig = {
   apiKey: "AIzaSyB4XJbqzLTL5kCQoh4Fu_1vsnyOKzPdcL0",
   authDomain: "dancing-and-music-mv-115.firebaseapp.com",
+  databaseURL: "https://dancing-and-music-mv-115-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "dancing-and-music-mv-115",
   storageBucket: "dancing-and-music-mv-115.firebasestorage.app",
   messagingSenderId: "878698855245",

@@ -393,13 +393,13 @@
           const payload = { ...form, createdAt: existing.createdAt || now, updatedAt: now };
           await set(ref(database, `users/${currentUser.uid}/mvProjects/${currentProjectId}`), payload);
           projectsCache[currentProjectId] = payload;
-          setStatus(`已更新「${form.projectName}」`);
+          setStatus(`✓ 已更新「${form.projectName}」`);
         } else {
           const payload = { ...form, createdAt: now, updatedAt: now };
           const newRef = await push(ref(database, `users/${currentUser.uid}/mvProjects`), payload);
           currentProjectId = newRef.key;
           projectsCache[currentProjectId] = payload;
-          setStatus(`已建立「${form.projectName}」`);
+          setStatus(`✓ 已建立「${form.projectName}」`);
         }
         renderProjectSelect();
         $("projectSelect").value = currentProjectId;

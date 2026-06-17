@@ -200,19 +200,14 @@ function buildPrompt() {
   const topic = els.topicInput.value.trim() || "";
   const style = els.styleInput.value.trim() || "";
   const mood = els.moodInput.value.trim() || "";
-  const character = els.characterInput.value.trim() || "";
-  const scene = els.sceneInput.value.trim() || "";
-  const camera = els.cameraInput.value.trim() || "";
 
-  const commonPrompt = `歌詞：
+  const commonPrompt = `主題：${topic}
+
+歌詞：
 ${lyrics}
 
-主題：${topic}
 曲風：${style}
-情緒：${mood}
-主角：${character}
-場景：${scene}
-運鏡：${camera}`;
+情緒：${mood}`;
   if (els.generatedPrompt) els.generatedPrompt.textContent = commonPrompt;
 }
 
